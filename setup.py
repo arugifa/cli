@@ -1,10 +1,10 @@
 from setuptools import find_namespace_packages, setup
 
 setup(
-    name='arugifa-cli',
+    name='arugifa-toolbox',
     version='0.1.0',
-    description='CLI utils for my Python projects',
-    url='https://github.com/arugifa/cli',
+    description='Utils and Helpers I use across all my Python projects',
+    url='https://github.com/arugifa/python-toolbox',
     author='Alexandre Figura',
     license='GNU General Public License v3',
     classifiers=[

@@ -3,14 +3,13 @@
 import sys
 from abc import ABC, abstractmethod, abstractproperty
 from contextlib import contextmanager
-from io import StringIO
 from typing import Any, TextIO
 
 from tqdm import tqdm
 
-from arugifa.cli.update import exceptions
-from arugifa.cli.update.input import Prompt
-from arugifa.cli.update.typing import (
+from arugifa.toolbox.update import exceptions
+from arugifa.toolbox.update.input import Prompt
+from arugifa.toolbox.update.typing import (
     UpdateErrors, UpdateProgress, UpdateTodo, UpdateResult)
 
 
@@ -40,9 +39,12 @@ class BaseUpdateRunner(ABC):
             show_progress: bool = True):
 
         self.manager = manager
+        self.progress = tqdm(disable=not show_progress, file=output)
         self.prompt = prompt or Prompt(output=output)
         self.output = output
-        self.show_progress = show_progress
+
+        self._todo = None
+        self._result = None
 
     # Abstract Attributes
 
@@ -66,20 +68,16 @@ class BaseUpdateRunner(ABC):
     # Properties
 
     @property
-    def progress(self) -> UpdateProgress:
-        return self._progress
-
-    @property
     def result(self) -> UpdateResult:
         if not self._result:
-            raise exceptions.UpdateNotRun
+            raise exceptions.UpdateNotRun(self)
 
         return self._result
 
     @property
     def todo(self) -> UpdateTodo:
         if not self._todo:
-            raise exceptions.UpdateNotPlanned
+            raise exceptions.UpdateNotPlanned(self)
 
         return self._todo
 
@@ -111,11 +109,10 @@ class BaseUpdateRunner(ABC):
 
     @contextmanager
     def progress_bar(self, *, total: int) -> None:
-        output = self.output if self.show_progress else StringIO()
+        if not self.progress.disable:
+            self.progress.reset(total)
 
         try:
-            with tqdm(total=total, file=output) as pbar:
-                self._progress = pbar
-                yield
+            yield self.progress
         finally:
-            self._progress = None
+            self.progress.close()
