@@ -7,7 +7,7 @@ from typing import Union
 
 import pytest
 
-from website.base.utils import BaseCommandLine
+from arugifa.toolbox.cli.base import BaseCommandLine
 
 
 class BaseCommandLineTest(ABC):
