@@ -2,6 +2,10 @@ class UpdateError(Exception):
     pass
 
 
+class UpdateAborted(UpdateError):
+    pass
+
+
 class UpdateNotPlanned(UpdateError):
     def __init__(self, update):
         self.update = update
